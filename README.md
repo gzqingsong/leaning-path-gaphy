@@ -20,6 +20,10 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - 个性化资源推荐（按学习风格偏好）
 - 动态调整（基于表现反馈实时重规划）
 - 强化学习环境与智能体桩（可后续接入训练）
+- LLM 集成（可选）：
+  - 规划解释（为返回的 path 提供简短解释）
+  - 资源推荐说明（结合风格给理由）
+  - 先修关系校验端点 `/ai/validate/prerequisite`
 
 ## 目录结构
 ```
@@ -49,6 +53,8 @@ app/
 ## 环境变量（可选）
 - `DATABASE_URL`：默认为 `sqlite:///./data.db`
 - `MASTERY_THRESHOLD`：掌握阈值（默认 0.8）
+- `OPENAI_API_KEY`：若配置，则启用 LLM 解释/校验能力
+- `OPENAI_MODEL`：默认 `gpt-4o-mini`
 
 ## 许可
 MIT

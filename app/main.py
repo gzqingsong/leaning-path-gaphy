@@ -7,6 +7,7 @@ from app.routers.graph import router as graph_router
 from app.routers.students import router as students_router
 from app.routers.planning import router as planning_router
 from app.routers.resources import router as resources_router
+from app.routers.ai import router as ai_router
 from app.routers.adjustment import router as adjustment_router
 from app.db import engine
 from app.models import Base
@@ -27,6 +28,7 @@ app.include_router(students_router, prefix="/students", tags=["students"])
 app.include_router(planning_router, prefix="/planning", tags=["planning"]) 
 app.include_router(resources_router, prefix="/resources", tags=["resources"]) 
 app.include_router(adjustment_router, prefix="/adjustment", tags=["adjustment"]) 
+app.include_router(ai_router, prefix="/ai", tags=["ai"]) 
 
 @app.get("/")
 def root():

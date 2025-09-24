@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.deps import get_db
 from app.models import Student
 from app.graph.store import store
+from app.services.llm import llm_service
 
 router = APIRouter()
 
@@ -29,11 +30,15 @@ def recommend_resources(student_id: int, targets: List[str] | None = None, db: S
 
     ranked = sorted(nodes, key=score, reverse=True)
     # Return top 10 lightweight recommendation descriptions
-    return [
-        {
-            "knowledge_point_id": n["id"],
-            "suggested_types": n.get("resource_types", []),
-            "reason": f"match:{style in [rt.lower() for rt in n.get('resource_types', [])]} importance:{n.get('importance', 1.0)}",
-        }
-        for n in ranked[:10]
-    ]
+    results = []
+    for n in ranked[:10]:
+        kp_id = n["id"]
+        rtypes = n.get("resource_types", [])
+        llm_reason = llm_service.explain_resources(kp_id, rtypes, style)
+        reason = llm_reason or f"match:{style in [rt.lower() for rt in rtypes]} importance:{n.get('importance', 1.0)}"
+        results.append({
+            "knowledge_point_id": kp_id,
+            "suggested_types": rtypes,
+            "reason": reason,
+        })
+    return results

@@ -3,6 +3,7 @@ from typing import Dict, List, Set, Iterable, Tuple
 
 from app.config import settings
 from app.graph.store import store
+from app.services.llm import llm_service
 
 
 class PlannerService:
@@ -22,7 +23,8 @@ class PlannerService:
         total_time = sum(float(store.get_attrs(kp).get("estimated_time", 1.0)) for kp in sequence)
         total_difficulty = sum(float(store.get_attrs(kp).get("difficulty", 1.0)) for kp in sequence)
         score = self._score(sequence, total_time, total_difficulty, mastered)
-        return [self._build_path(sequence, total_time, total_difficulty, score)]
+        explanation = llm_service.explain_plan(sequence, context=f"targets={targets}")
+        return [self._build_path(sequence, total_time, total_difficulty, score, explanation)]
 
     def _heuristic_topo_order(self, nodes: Iterable[str]) -> List[str]:
         # Kahn's algorithm with tie-breaking by lower (difficulty * estimated_time) and higher importance
@@ -58,7 +60,7 @@ class PlannerService:
             weakness_penalty += (1.0 - m)
         return total_time * 0.6 + total_difficulty * 0.3 + weakness_penalty * 0.1
 
-    def _build_path(self, sequence: List[str], total_time: float, total_difficulty: float, score: float | None = None) -> Dict:
+    def _build_path(self, sequence: List[str], total_time: float, total_difficulty: float, score: float | None = None, explanation: str | None = None) -> Dict:
         if score is None:
             score = total_time * 0.6 + total_difficulty * 0.4
         return {
@@ -66,6 +68,7 @@ class PlannerService:
             "total_estimated_time": total_time,
             "total_difficulty": total_difficulty,
             "score": float(score),
+            "explanation": explanation,
         }
 
 
