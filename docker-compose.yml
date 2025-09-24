@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: learning-path-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data.db
+      - MASTERY_THRESHOLD=0.8
+    volumes:
+      - ./:/app
